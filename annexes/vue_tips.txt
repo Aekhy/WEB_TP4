@@ -1,0 +1,169 @@
+Attribute Bindings :
+	théorie -> v-bind:attributName="variableName" ou :attributName="variableName"
+	exemple -> v-bind:id="textId" 		      ou :id="textId"
+
+	les variables sont définies dans :
+
+	data() {
+	  return {
+	    varName : value
+	  }	
+	}
+
+Event Listeners :
+	théorie -> v-on:eventName="functionName"      ou @eventName="functionName"
+	exemple -> v-on:click="Increment" 	      ou @click="Increment"
+	
+	les fonctions sont définies dans :
+
+	methodes : {
+		increment(){console.log("fait un truc")}
+	}
+
+
+Form Binding : 
+	------From scratch----:
+	théorie (chiant) -> <input :value="text" @input="onInput" placeholder="Type here">
+	methods: {
+  	  onInput(e) {
+    	    // a v-on handler receives the native DOM event
+    	    // as the argument.
+    	    this.text = e.target.value
+  	  }
+	}
+	------En pratique-----:
+	théorie (sugar)  -> <input v-model="text" placeholder="Type here">
+
+Conditional Rendering
+
+	théorie -> <tag v-if:"value"> Hey </tag>
+	si value est truthy, tag est render
+	sinon, tag est removed du DOM
+	
+	on peut ajouter v-else et v-else-if
+
+	exemple ->
+		<h1 v-if="awesome"> Génial </h1>
+		<h1 v-else> Nuuuul </h1>
+
+Liste Rendering
+
+	théorie ->
+	<ul>
+	<li v-for:"item in items" :key"item.id">
+		{{ item.text }}
+	</li>
+	</ul>
+	Notice how we are also giving each todo object a unique id,
+	and binding it as the special key attribute for each <li>. 
+	The key allows Vue to accurately move each <li> to match 
+	the position of its corresponding object in the array
+
+	pour gerer un tableau:
+	Array.push(element)
+	Array = Array.filter((element) => ConditionOnElementKeepItIftruthy )
+	exemple ->
+	let specifique = "une valeur"
+	this.todos = this.todos.filter((t)=> t !== specifique)
+
+	tips : 
+	<form @submit.prevent="addTodo">
+    	  <input v-model="newTodo">
+    	  <button>Add Todo</button>    
+  	</form>
+
+Computed Property
+
+
+	computed: {
+    		todosFiltered(){
+      		  return this.hideCompleted ? 
+        	    this.todos.filter((t) => !t.done) :
+      		    this.todos
+    		}
+  	}
+
+	<li v-for="todo in todosFiltered" :key="todo.id">
+
+	en gros computed permet de calculer des variables en fonctions
+	d'autres variables en permanence.
+	! dans computed ce ne sont pas des fonctions.
+
+
+Lifecycle and Template Refs
+
+<script type="module">
+import { createApp } from 'vue'
+
+createApp({
+  mounted() {
+    // component is now mounted.
+    this.$refs.pElementRef.textContent = "Hey"
+  }
+}).mount('#app')
+</script>
+
+<div id="app">
+  <p ref="pElementRef">hello</p>
+</div>
+
+Une fois mounted, je peux acceder a la balise p
+par la variable this.$refs avec sa ref.
+
+
+Watchers TROP MALIN
+
+
+<script type="module">
+import { createApp } from 'vue'
+
+createApp({
+  data() {
+    return {
+      todoId: 1,
+      todoData: null
+    }
+  },
+  methods: {
+    async fetchData() {
+      this.todoData = null
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/todos/${this.todoId}`
+      )
+      this.todoData = await res.json()
+    }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  watch: {
+    todoId() {
+      this.fetchData()
+    }
+  }
+}).mount('#app')
+</script>
+
+<div id="app">
+  <p>Todo id: {{ todoId }}</p>
+  <button @click="todoId++">Fetch next todo</button>
+  <p v-if="!todoData">Loading...</p>
+  <pre v-else>{{ todoData }}</pre>
+</div>
+
+
+Components
+
+https://vuejs.org/tutorial/#step-11
+
+Props (parent vers child)
+
+https://vuejs.org/tutorial/#step-12
+
+Emits (child vers parent)
+
+https://vuejs.org/tutorial/#step-13
+
+
+Useful exemple : 
+https://vuejs.org/examples/#form-bindings
